@@ -1,0 +1,42 @@
+---
+title: "GformSummary"
+author: "Matt Wilkins"
+date: "5/14/2020"
+always_allow_html: true
+header-includes:
+   - \usepackage{float}
+   # - \documentclass[table]{article}
+params: 
+  gradesheet: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$get("rmarkdown.pandoc.to")
+# options(knitr.table.format = function() {
+#   if (knitr::is_latex_output()) 
+#     "pandoc" else "html"
+# })
+require(ggplot2);require(DT);require(knitr);require(dplyr);require(kableExtra)
+gradesheet<-params$gradesheet
+```
+```{r}
+# The `params` object is available in the document.
+params
+```
+-=-------
+```{r env1}
+questionSummary <- gradesheet %>% group_by(Q) %>% summarise(NumCorrect=sum(correct=="Yes",na.rm=T),NumPartial=sum(correct=="Partial",na.rm=T) , NumResponses=n(),ClassMean=mean(scoreFracNum,na.rm=T)) %>% arrange(ClassMean)
+
+questionSummary%>% mutate_if(is.numeric, ~round(., 1)) %>% mutate_all(as.character) %>% kable(caption="Question-by-question class performance: worst to best") %>% kable_styling(bootstrap_options = c("striped", "hover"),latex_options=c("scale_down","repeat_header","striped")) 
+# (options=list("searching"=F,"paging"=F,"info"=F))
+# DTOutput(Sqtab)
+
+studentSummary<-gradesheet %>% group_by(studentX) %>% summarise(OverallScores=sum(scoreFracNum,na.rm=T),OutOf=sum(outOf),ScorePercent=OverallScores/OutOf*100)
+
+Shist <- ggplot(studentSummary,aes(x=ScorePercent))+geom_histogram(col=1,alpha=.5)+xlim(0,100)+theme_bw()+geom_vline(aes(xintercept=mean(ScorePercent,na.rm=T),linetype="mean"),size=1.5,show.legend=T)+geom_vline(aes(xintercept=median(ScorePercent,na.rm=T),linetype="median"),size=1.5,show.legend=T)+ggtitle("Distribution of overall scores")+scale_linetype_manual(name = "Statistics", labels=c("median","mean"),values = c( "dotted", "dashed"))
+Shist
+```
+
+
+
