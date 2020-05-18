@@ -1,5 +1,5 @@
 ---
-title: "GformSummary"
+title: "Summary of Google Form Responses"
 author: "Matt Wilkins"
 date: "5/14/2020"
 always_allow_html: true
@@ -7,6 +7,7 @@ header-includes:
    - \usepackage{float}
    # - \documentclass[table]{article}
 params: 
+  lessonName: NA
   gradesheet: NA
 ---
 
@@ -22,11 +23,11 @@ gradesheet<-params$gradesheet
 ```
 ```{r}
 # The `params` object is available in the document.
-params
+
 ```
 -=-------
 ```{r env1}
-questionSummary <- gradesheet %>% group_by(Q) %>% summarise(NumCorrect=sum(correct=="Yes",na.rm=T),NumPartial=sum(correct=="Partial",na.rm=T) , NumResponses=n(),ClassMean=mean(scoreFracNum,na.rm=T)) %>% arrange(ClassMean)
+questionSummary <- gradesheet %>% group_by(Q) %>% summarise(NumCorrect=sum(correct=="Yes",na.rm=T),NumPartial=sum(correct=="Partial",na.rm=T) , NumResponses=n(),ClassMean=mean(scoreFracNum,na.rm=T)) %>% arrange(ClassMean) %>% rename(Question=Q)
 
 questionSummary%>% mutate_if(is.numeric, ~round(., 1)) %>% mutate_all(as.character) %>% kable(caption="Question-by-question class performance: worst to best") %>% kable_styling(bootstrap_options = c("striped", "hover"),latex_options=c("scale_down","repeat_header","striped")) 
 # (options=list("searching"=F,"paging"=F,"info"=F))
